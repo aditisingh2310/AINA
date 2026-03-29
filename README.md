@@ -1,242 +1,123 @@
-# 🛡️ AINA – Women Safety & Legal Evidence App
+# AINA — Women Safety & Incident Intelligence Platform
 
-> **AINA (AI-based Incident & Narrative Archive)** is a privacy-first mobile application designed to empower women to document harassment, generate legal-ready evidence, and trigger emergency assistance — safely, silently, and securely.
+## Problem
+Women facing harassment or abuse often cannot collect legally credible evidence quickly and safely. Most tools fail in emergencies, fail offline, or don't provide actionable insights.
 
----
+## Solution
+AINA is a mobile-first safety app that enables users to:
+- capture encrypted incident evidence,
+- trigger emergency SOS with location + encrypted audio,
+- notify trusted contacts,
+- visualize incidents on a live map,
+- generate AI-powered insights and legal-ready reports.
 
-## 🎯 Vision
+## Architecture Overview
+### Frontend
+- React Native (Expo)
+- React Navigation
+- Socket.IO client (realtime updates)
+- react-native-maps (incident map)
 
-To provide every woman with a **digital legal shield** — a tool that transforms undocumented harassment into **structured, time-stamped, and actionable evidence**.
+### Backend
+- Node.js + Express
+- Prisma + PostgreSQL
+- Socket.IO server
+- AI services (`aiService`, `aiInsightsService`, `patternService`)
 
----
+### Security
+- AES-256 client encryption with PBKDF2 key derivation
+- SHA-256 evidence integrity checks
+- Replay protection (`x-request-nonce`, `x-request-timestamp`)
+- Helmet, CORS control, rate limiting, sanitization and validation
 
-## 🚨 Problem Statement
+## AI Features
+- Auto incident classification (verbal/physical/financial/threat)
+- Severity scoring and entity extraction
+- Peak-hour analysis
+- High-risk area clustering
+- Safety advice cards
+- AI legal narrative in report output
 
-Harassment cases often fail due to:
+## Demo Features (Judge-Friendly)
+1. **Incident Map** (`MapScreen`)
+   - color-coded severity markers
+   - current user location
+   - realtime marker updates
+2. **AI Insights Screen**
+   - top incident type, peak hours, risky areas, safety tips
+3. **Demo Mode Toggle** (Settings)
+   - simulates new incidents every 30–60 seconds
+4. **Realtime Updates**
+   - incidents and SOS events appear instantly via Socket.IO
+5. **Report Export**
+   - JSON and PDF legal report
 
-* Lack of **documented evidence**
-* "He said, she said" ambiguity
-* Inability to safely record incidents in real time
-* Financial and psychological control over victims
-
----
-
-## 💡 Solution
-
-AINA enables users to:
-
-* 📌 Log incidents with encrypted evidence (text, audio, images)
-* 🤖 Automatically classify and structure incidents using AI
-* 📊 Generate **Pattern of Behavior Reports**
-* 🚨 Trigger **silent SOS alerts**
-* 🔐 Store all data in a **Zero-Knowledge encrypted vault**
-
----
-
-## ⚙️ Tech Stack
-
-### 📱 Frontend
-
-* React Native (Expo)
-* Axios (API communication)
-* React Navigation
-
-### 🖥️ Backend
-
-* Node.js + Express
-* JWT Authentication
-* REST APIs
-
-### 🗄️ Database
-
-* PostgreSQL
-* Prisma ORM
-
-### 🤖 AI Integration
-
-* Google DeepMind (Gemini API)
-
-  * Incident classification
-  * Entity extraction (Who, When, Type, Severity)
-
----
-
-## 🔐 Security Architecture
-
-* 🔒 End-to-End Encryption (E2EE)
-* 🧾 SHA-256 hashing for evidence integrity
-* 🔑 User-controlled encryption keys (not stored on server)
-* 🧠 Zero-Knowledge backend (server cannot read user data)
-
----
-
-## 📦 Core Features
-
-### 1. 📝 Incident Logging
-
-* Capture harassment details
-* Attach encrypted evidence
-* AI auto-tags incidents
-
----
-
-### 2. 📊 Pattern Detection Engine
-
-* Tracks frequency of abuse
-* Identifies escalation trends
-* Generates structured summaries
-
----
-
-### 3. 🚨 Silent SOS System
-
-* One-tap emergency trigger
-* Sends location + encrypted audio
-* Notifies trusted contacts instantly
-
----
-
-### 4. 👥 Trusted Contacts
-
-* Add emergency contacts
-* Priority-based alert system
-
----
-
-### 5. 📄 Report Generator
-
-* Timeline of incidents
-* Categorized abuse patterns
-* Exportable legal-ready reports
-
----
-
-## 🧱 Project Structure
-
-### 📁 Backend
-
-```
-backend/
- ├── controllers/
- ├── routes/
- ├── middleware/
- ├── prisma/
- ├── utils/
- └── server.js
-```
-
-### 📁 Frontend
-
-```
-frontend/
- ├── screens/
- ├── services/
- ├── components/
- └── App.js
-```
-
----
-
-## 🚀 Getting Started
-
-### 🔧 Backend Setup
-
+## Setup Instructions
+### 1) Install & DB
 ```bash
-cd backend
 npm install
-```
-
-Create `.env`:
-
-```env
-DATABASE_URL=your_postgres_url
-JWT_SECRET=your_secret
-```
-
-Run:
-
-```bash
 npx prisma generate
-npx prisma migrate dev
+npx prisma migrate dev --name hackathon_demo
+```
+
+### 2) Seed Demo Data
+```bash
+npm run seed
+```
+
+### 3) Run Backend
+```bash
 npm run dev
 ```
 
----
-
-### 📱 Frontend Setup
-
+### 4) Run Mobile App
 ```bash
-cd frontend
-npm install
 npx expo start
 ```
 
-Update API base URL:
+## Required Environment Variables
+```env
+DATABASE_URL=postgresql://...
+JWT_SECRET=...
+JWT_EXPIRES_IN=7d
+JWT_ISSUER=aina-api
+JWT_AUDIENCE=aina-mobile
+PORT=5000
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:8081,http://localhost:19006
+RATE_LIMIT_MAX=300
 
-```javascript
-baseURL: "http://YOUR_IP:5000"
+EXPO_PUBLIC_API_URL=http://localhost:5000
+GEMINI_API_KEY=
+
+# Optional real alerts
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_FROM_NUMBER=
+TWILIO_ENABLE_CALLS=true
 ```
 
----
+## Deployment
+- **Render**: use `render.yaml`
+- **Docker / AWS**:
+```bash
+docker build -t aina-api .
+docker run -p 5000:5000 --env-file .env aina-api
+```
 
-## 🔄 App Flow
+## Demo Walkthrough (3-5 min)
+1. Login with seeded demo user (`demo@aina.app` / `demo12345`) or register.
+2. Open **Settings** → enable **Demo Mode**.
+3. Open **Map** and watch incidents appear realtime.
+4. Open **AI Insights** and explain peak hours + risky areas.
+5. Trigger **SOS** and show countdown + auto incident creation.
+6. Open **Report** and export JSON/PDF.
 
-1. User signs up / logs in
-2. Adds trusted contacts
-3. Logs incidents securely
-4. AI processes and categorizes data
-5. Data stored encrypted
-6. SOS can be triggered anytime
-7. Reports generated when needed
-
----
-
-## 🌍 Impact
-
-AINA addresses:
-
-* 🛑 Domestic violence
-* 🛑 Workplace harassment
-* 🛑 Financial abuse
-* 🛑 Psychological manipulation (gaslighting)
-
----
-
-## 🧠 Innovation Highlights
-
-* 📈 **Behavior Pattern Intelligence**
-* 🤫 **Silent Emergency Activation**
-* 🔐 **Zero-Knowledge Evidence Vault**
-* ⚖️ **Legal-Ready Documentation**
-
----
-
-## 🚧 Future Roadmap
-
-* 🔊 Subvocal SOS trigger (whisper detection)
-* 📍 Live location tracking
-* 🧠 Advanced AI risk prediction
-* ☁️ Cloud storage (AWS S3)
-* 📄 PDF legal report export
-* 🏛️ Integration with legal services
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-Feel free to fork, open issues, and submit PRs.
-
----
-
-## ⚠️ Disclaimer
-
-AINA is a support tool and does not replace law enforcement or emergency services.
-
----
-
-## ❤️ Built With Purpose
-
-> "Safety is not a privilege — it’s a right."
-
-AINA is built to ensure no voice goes unheard, and no incident goes undocumented.
+## API Highlights
+- `GET /incidents/nearby`
+- `GET /ai/insights`
+- `POST /incident`
+- `POST /sos/trigger`
+- `GET /report/summary`
+- `GET /report/export/json`
+- `GET /report/export/pdf`
