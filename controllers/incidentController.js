@@ -4,7 +4,9 @@ const asyncHandler = require('../utils/asyncHandler');
 const { analyzeIncidentText } = require('../services/aiService');
 const { uploadEncryptedFile } = require('../services/storageService');
 const { buildAndStoreInsight } = require('../services/aiInsightsService');
-const { emitEvent } = require('../services/realtimeService');
+const { getRealtimeService } = require('../services/realtimeService');
+const { aiAnalysisQueue } = require('../services/queueService');
+const redisClient = require('../services/redisClient');
 
 const prisma = new PrismaClient();
 
@@ -26,7 +28,7 @@ exports.createIncident = asyncHandler(async (req, res) => {
     aiResult,
     aiInputText,
     latitude,
-    longitude
+    longitude,
   } = req.body;
 
   let computedHash = evidenceHash;
@@ -46,7 +48,7 @@ exports.createIncident = asyncHandler(async (req, res) => {
   const priorIncidents = await prisma.incident.findMany({
     where: { userId: req.user.id },
     orderBy: { timestamp: 'asc' },
-    take: 20
+    take: 20,
   });
 
   const analysis = aiResult || (aiInputText ? await analyzeIncidentText(aiInputText) : null);
@@ -68,39 +70,61 @@ exports.createIncident = asyncHandler(async (req, res) => {
       aiSeverity: analysis?.severityScore,
       aiRaw: analysis?.raw || analysis || undefined,
       latitude,
-      longitude
-    }
+      longitude,
+    },
   });
+
+  if (!analysis && aiInputText) {
+    await aiAnalysisQueue.add(
+      { text: aiInputText, incidentId: incident.id },
+      { attempts: 3, backoff: { type: 'exponential', delay: 2000 } }
+    );
+  }
+
+  // invalidate cache
+  await redisClient.del(`incidents:${req.user.id}`);
 
   const insightText = aiInputText || '[Encrypted evidence submitted by user]';
   const { insight } = await buildAndStoreInsight({
     userId: req.user.id,
     incidentId: incident.id,
     text: insightText,
-    priorIncidents
+    priorIncidents,
   });
 
-  emitEvent('incident:created', { incidentId: incident.id, type: incident.type, latitude, longitude, severity: incident.aiSeverity });
+  // Broadcast new incident via WebSocket
+  const realtimeService = getRealtimeService();
+  if (realtimeService) {
+    await realtimeService.broadcastNewIncident(incident.id);
+  }
 
-  res.status(201).json({ incident, insight });
+  res.status(201).json({ incident, insight, queuedAnalysis: !analysis && !!aiInputText });
 });
 
 exports.getIncidents = asyncHandler(async (req, res) => {
+  const cacheKey = `incidents:${req.user.id}`;
+  const cached = await redisClient.get(cacheKey);
+
+  if (cached) {
+    return res.json(JSON.parse(cached));
+  }
+
   const incidents = await prisma.incident.findMany({
     where: { userId: req.user.id },
     orderBy: { timestamp: 'desc' },
     include: {
-      aiInsights: { orderBy: { createdAt: 'desc' }, take: 1 }
-    }
+      aiInsights: { orderBy: { createdAt: 'desc' }, take: 1 },
+    },
   });
 
+  await redisClient.set(cacheKey, JSON.stringify(incidents), 'EX', 60);
   res.json(incidents);
 });
 
 exports.getIncidentById = asyncHandler(async (req, res) => {
   const incident = await prisma.incident.findFirst({
     where: { id: req.params.id, userId: req.user.id },
-    include: { aiInsights: true }
+    include: { aiInsights: true },
   });
 
   if (!incident) {
@@ -120,10 +144,10 @@ exports.getNearbyIncidents = asyncHandler(async (req, res) => {
     where: {
       userId: req.user.id,
       latitude: { not: null },
-      longitude: { not: null }
+      longitude: { not: null },
     },
     orderBy: { timestamp: 'desc' },
-    take: 200
+    take: 200,
   });
 
   if (Number.isFinite(lat) && Number.isFinite(lng)) {

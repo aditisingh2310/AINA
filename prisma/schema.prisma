@@ -100,6 +100,20 @@ model RequestNonce {
   @@index([userId, createdAt])
 }
 
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String
+  tokenHash   String   @unique
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 model DeviceToken {
   id        String   @id @default(uuid())
   userId    String

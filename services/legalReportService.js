@@ -9,7 +9,7 @@ function buildLegalTimeline(incidents = []) {
       severity: item.aiSeverity,
       who: item.aiWho,
       when: item.aiWhen,
-      hash: item.evidenceHash
+      hash: item.evidenceHash,
     }));
 }
 
@@ -40,7 +40,13 @@ function createPdfBuffer({ userEmail, summary, timeline, legalNarrative }) {
 
     doc.fontSize(14).text('Incident Timeline');
     timeline.forEach((t, idx) => {
-      doc.fontSize(10).text(`${idx + 1}. ${new Date(t.timestamp).toISOString()} | ${t.type} | severity ${t.severity || 'N/A'} | who: ${t.who || 'unknown'} | hash: ${t.hash}`);
+      doc
+        .fontSize(10)
+        .text(
+          `${idx + 1}. ${new Date(t.timestamp).toISOString()} | ${t.type} | severity ${
+            t.severity || 'N/A'
+          } | who: ${t.who || 'unknown'} | hash: ${t.hash}`
+        );
     });
 
     doc.end();

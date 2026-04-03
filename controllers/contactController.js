@@ -12,7 +12,7 @@ exports.addContact = asyncHandler(async (req, res) => {
   }
 
   const contact = await prisma.contact.create({
-    data: { name, phone, priority, userId: req.user.id }
+    data: { name, phone, priority, userId: req.user.id },
   });
 
   res.status(201).json(contact);
@@ -21,7 +21,7 @@ exports.addContact = asyncHandler(async (req, res) => {
 exports.getContacts = asyncHandler(async (req, res) => {
   const contacts = await prisma.contact.findMany({
     where: { userId: req.user.id },
-    orderBy: { priority: 'asc' }
+    orderBy: { priority: 'asc' },
   });
 
   res.json(contacts);

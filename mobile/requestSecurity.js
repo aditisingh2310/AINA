@@ -1,4 +1,4 @@
-import * as Crypto from "expo-crypto";
+import * as Crypto from 'expo-crypto';
 
 export async function buildReplayHeaders() {
   const timestamp = Date.now().toString();
@@ -8,7 +8,7 @@ export async function buildReplayHeaders() {
   );
 
   return {
-    "x-request-nonce": nonce,
-    "x-request-timestamp": timestamp,
+    'x-request-nonce': nonce,
+    'x-request-timestamp': timestamp,
   };
 }

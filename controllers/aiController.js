@@ -7,7 +7,7 @@ exports.getInsights = asyncHandler(async (req, res) => {
   const incidents = await prisma.incident.findMany({
     where: { userId: req.user.id },
     orderBy: { timestamp: 'desc' },
-    take: 500
+    take: 500,
   });
 
   const byType = {};
@@ -40,7 +40,7 @@ exports.getInsights = asyncHandler(async (req, res) => {
   const safetyTips = [
     'Avoid traveling alone during peak risk hours.',
     'Share live location with trusted contacts when moving through risky zones.',
-    'Use quick SOS trigger if you feel unsafe and preserve encrypted evidence.'
+    'Use quick SOS trigger if you feel unsafe and preserve encrypted evidence.',
   ];
 
   res.json({ topIncidentType, peakHours, riskyAreas, safetyTips });

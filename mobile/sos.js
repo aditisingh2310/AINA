@@ -1,11 +1,11 @@
-import * as Location from "expo-location";
-import { Audio } from "expo-av";
-import * as FileSystem from "expo-file-system";
+import * as Location from 'expo-location';
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 
 export async function captureCurrentLocation() {
   const permission = await Location.requestForegroundPermissionsAsync();
-  if (permission.status !== "granted") {
-    throw new Error("Location permission denied");
+  if (permission.status !== 'granted') {
+    throw new Error('Location permission denied');
   }
 
   const position = await Location.getCurrentPositionAsync({});
@@ -14,8 +14,8 @@ export async function captureCurrentLocation() {
 
 export async function recordEmergencyAudio(seconds = 30) {
   const audioPermission = await Audio.requestPermissionsAsync();
-  if (audioPermission.status !== "granted") {
-    throw new Error("Microphone permission denied");
+  if (audioPermission.status !== 'granted') {
+    throw new Error('Microphone permission denied');
   }
 
   await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
@@ -28,7 +28,9 @@ export async function recordEmergencyAudio(seconds = 30) {
 
   await recording.stopAndUnloadAsync();
   const uri = recording.getURI();
-  const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+  const base64 = await FileSystem.readAsStringAsync(uri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
 
   return { uri, base64 };
 }

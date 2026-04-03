@@ -7,21 +7,28 @@ async function uploadEncryptedFile(base64Data, folder = 'aina') {
     return null;
   }
 
-  if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+  if (
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_SECRET
+  ) {
     const cloudinary = require('cloudinary').v2;
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
       api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET
+      api_secret: process.env.CLOUDINARY_API_SECRET,
     });
 
-    const uploadRes = await cloudinary.uploader.upload(`data:application/octet-stream;base64,${base64Data}`, {
-      folder,
-      resource_type: 'raw',
-      use_filename: false,
-      unique_filename: true,
-      overwrite: false
-    });
+    const uploadRes = await cloudinary.uploader.upload(
+      `data:application/octet-stream;base64,${base64Data}`,
+      {
+        folder,
+        resource_type: 'raw',
+        use_filename: false,
+        unique_filename: true,
+        overwrite: false,
+      }
+    );
 
     return uploadRes.secure_url;
   }

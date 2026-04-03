@@ -5,7 +5,7 @@ describe('buildIncidentSummary', () => {
     const incidents = [
       { type: 'verbal', timestamp: '2026-03-01T00:00:00.000Z', aiWho: 'X', aiSeverity: 4 },
       { type: 'threat', timestamp: '2026-03-02T00:00:00.000Z', aiWho: 'X', aiSeverity: 8 },
-      { type: 'physical', timestamp: '2026-03-03T00:00:00.000Z', aiWho: 'X', aiSeverity: 9 }
+      { type: 'physical', timestamp: '2026-03-03T00:00:00.000Z', aiWho: 'X', aiSeverity: 9 },
     ];
 
     const summary = buildIncidentSummary(incidents);

@@ -15,15 +15,15 @@ async function run() {
     user = await prisma.user.create({
       data: {
         email: 'demo@aina.app',
-        password: '$2b$12$wBVdmYfFnv/JnE.0B96xOOk3iOI97x7X2s4rknDn4B2e7I27Qg9XW' // demo12345
-      }
+        password: '$2b$12$wBVdmYfFnv/JnE.0B96xOOk3iOI97x7X2s4rknDn4B2e7I27Qg9XW', // demo12345
+      },
     });
   }
 
   const incidents = Array.from({ length: 40 }).map((_, idx) => {
     const type = TYPES[Math.floor(Math.random() * TYPES.length)];
     const severity = Math.floor(randomBetween(2, 10));
-    const lat = randomBetween(12.85, 13.10);
+    const lat = randomBetween(12.85, 13.1);
     const lng = randomBetween(77.45, 77.75);
     const encryptedText = `seeded-encrypted-payload-${idx}`;
 
@@ -40,7 +40,7 @@ async function run() {
       aiSeverity: severity,
       aiWho: `Person-${Math.floor(randomBetween(1, 8))}`,
       aiWhen: 'evening',
-      aiRaw: { seeded: true }
+      aiRaw: { seeded: true },
     };
   });
 
@@ -49,9 +49,11 @@ async function run() {
   console.log(`Seeded ${incidents.length} incidents for ${user.email}`);
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-}).finally(async () => {
-  await prisma.$disconnect();
-});
+run()
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

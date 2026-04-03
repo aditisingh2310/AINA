@@ -9,9 +9,9 @@ module.exports = function validate(schema) {
           code: 400,
           details: parsed.error.issues.map((issue) => ({
             path: issue.path.join('.'),
-            message: issue.message
-          }))
-        }
+            message: issue.message,
+          })),
+        },
       });
     }
 

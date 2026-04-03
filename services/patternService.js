@@ -1,5 +1,6 @@
 function getRiskLevel(total, escalationDetected, maxSeverity = 1, repeatedOffenderCount = 0) {
-  if (maxSeverity >= 8 || escalationDetected || repeatedOffenderCount >= 3 || total >= 10) return 'high';
+  if (maxSeverity >= 8 || escalationDetected || repeatedOffenderCount >= 3 || total >= 10)
+    return 'high';
   if (maxSeverity >= 5 || total >= 4 || repeatedOffenderCount >= 2) return 'medium';
   return 'low';
 }
@@ -19,7 +20,9 @@ function buildIncidentSummary(incidents = []) {
     const dayKey = date.toISOString().slice(0, 10);
     daily[dayKey] = (daily[dayKey] || 0) + 1;
 
-    const weekKey = `${date.getUTCFullYear()}-W${String(Math.ceil((date.getUTCDate() + 6 - date.getUTCDay()) / 7)).padStart(2, '0')}`;
+    const weekKey = `${date.getUTCFullYear()}-W${String(
+      Math.ceil((date.getUTCDate() + 6 - date.getUTCDay()) / 7)
+    ).padStart(2, '0')}`;
     weekly[weekKey] = (weekly[weekKey] || 0) + 1;
 
     if (incident.aiWho && incident.aiWho !== 'unknown') {
@@ -54,7 +57,7 @@ function buildIncidentSummary(incidents = []) {
     mostFrequentType,
     repeatedOffenders,
     maxSeverity,
-    riskLevel: getRiskLevel(total, escalationDetected, maxSeverity, repeatedOffenders.length)
+    riskLevel: getRiskLevel(total, escalationDetected, maxSeverity, repeatedOffenders.length),
   };
 }
 

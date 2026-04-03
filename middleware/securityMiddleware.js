@@ -27,7 +27,7 @@ exports.replayProtection = asyncHandler(async (req, res, next) => {
   }
 
   await prisma.requestNonce.create({
-    data: { nonce, userId: req.user.id }
+    data: { nonce, userId: req.user.id },
   });
 
   next();

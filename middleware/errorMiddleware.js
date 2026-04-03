@@ -13,16 +13,21 @@ function errorHandler(err, req, res, next) {
     method: req.method,
     url: req.originalUrl,
     statusCode,
-    stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined
+    stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined,
   });
+
+  if (process.env.SENTRY_DSN) {
+    const Sentry = require('@sentry/node');
+    Sentry.captureException(err);
+  }
 
   res.status(statusCode).json({
     success: false,
     error: {
       message: err.message || 'Internal server error',
-      code: statusCode
+      code: statusCode,
     },
-    ...(process.env.NODE_ENV !== 'production' ? { stack: err.stack } : {})
+    ...(process.env.NODE_ENV !== 'production' ? { stack: err.stack } : {}),
   });
 }
 

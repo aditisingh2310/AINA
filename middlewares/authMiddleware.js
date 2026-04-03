@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
       issuer: process.env.JWT_ISSUER || 'aina-api',
-      audience: process.env.JWT_AUDIENCE || 'aina-mobile'
+      audience: process.env.JWT_AUDIENCE || 'aina-mobile',
     });
 
     if (decoded.type !== 'access') {

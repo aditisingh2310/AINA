@@ -16,20 +16,30 @@ async function sendViaTwilio(contacts, message) {
         await twilio.calls.create({
           twiml: `<Response><Say voice="alice">Emergency alert from AINA. Please check your messages now.</Say></Response>`,
           from: fromNumber,
-          to: contact.phone
+          to: contact.phone,
         });
       }
 
-      deliveredTo.push({ contactId: contact.id, phone: contact.phone, status: 'sent', channel: 'twilio' });
+      deliveredTo.push({
+        contactId: contact.id,
+        phone: contact.phone,
+        status: 'sent',
+        channel: 'twilio',
+      });
     } catch {
-      deliveredTo.push({ contactId: contact.id, phone: contact.phone, status: 'failed', channel: 'twilio' });
+      deliveredTo.push({
+        contactId: contact.id,
+        phone: contact.phone,
+        status: 'failed',
+        channel: 'twilio',
+      });
     }
   }
 
   return {
     provider: 'twilio',
     deliveredTo,
-    count: deliveredTo.filter((x) => x.status === 'sent').length
+    count: deliveredTo.filter((x) => x.status === 'sent').length,
   };
 }
 
@@ -44,13 +54,13 @@ async function notifyTrustedContacts({ contacts, location, userId }) {
     phone: contact.phone,
     status: 'simulated_sent',
     channel: 'sms_whatsapp_sim',
-    message
+    message,
   }));
 
   return {
     provider: 'simulated',
     deliveredTo,
-    count: deliveredTo.length
+    count: deliveredTo.length,
   };
 }
 

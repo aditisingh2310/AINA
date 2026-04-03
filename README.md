@@ -1,20 +1,88 @@
-# AINA – Women Safety & Legal Evidence App 
+# AINA Backend (Production-ready Refactor)
 
-AINA is now structured as a mission-critical, privacy-first safety platform:
-- end-to-end encrypted evidence lifecycle
-- replay/tamper-resistant APIs
-- offline-first emergency workflows
-- AI risk intelligence + legal-grade reporting
-- deployment-ready backend hardening
+AINA is a secure incident reporting API with AI insights, realtime socket events, and mobile client integration.
 
-## 1) Architecture
+## Quick start
+
+1. Copy env: `cp .env.example .env`
+2. Set your secrets in `.env`.
+3. Start infrastructure: `npm run docker:start`
+4. Run migrations: `npm run prisma:migrate`
+5. Start app: `npm run dev`
+
+## Docker
+
+- `docker-compose up --build`
+- API on `http://localhost:5000`
+- PostgreSQL on `localhost:5432`
+- Redis on `localhost:6379`
+
+## Environment
+
+Required variables:
+
+- `DATABASE_URL`
+- `REDIS_URL`
+- `JWT_SECRET`
+
+Optional:
+
+- `SENTRY_DSN`
+- `CORS_ORIGIN`
+
+## API
+
+- `/auth/register`
+- `/auth/login`
+- `/auth/refresh`
+- `/auth/logout`
+- `/health`
+- `/metrics`
+- `/docs`
+
+### API docs
+
+`/docs` - Swagger UI auto-generated
+
+## Dev scripts
+
+- `npm run dev`
+- `npm run test`
+- `npm run lint`
+- `npm run seed`
+- `npm run docker:start`
+- `npm run build`
+
+## Architecture
+
+- Express, Prisma, PostgreSQL
+- Redis caching + Bull background queue
+- Swagger / OpenAPI docs
+- centralized error handling
+- request tracing and metrics with `prom-client`
+- log with Winston + optional Sentry
+
+## Security hardening
+
+- CSRF protection
+- Rate limiting
+- Input sanitization
+- Token rotation for refresh tokens
+
+## Observability
+
+- `/health` and `/metrics`
+- Winston structured logs
+- Sentry integration
 
 ### Stack (unchanged)
+
 - Frontend: React Native (Expo)
 - Backend: Node.js + Express
 - Database: PostgreSQL + Prisma
 
 ### Security & Reliability Additions
+
 - AES-256-CBC + PBKDF2 evidence encryption on device
 - SHA-256 integrity hash verification on backend
 - Request replay protection via nonce + timestamp headers
@@ -26,17 +94,20 @@ AINA is now structured as a mission-critical, privacy-first safety platform:
 ## 2) Feature Highlights
 
 ### End-to-End Encryption Lifecycle
+
 - Encrypt before upload (`mobile/encryption.js`)
 - Hash verification at API entry (`controllers/incidentController.js`)
 - Decrypt locally in incidents screen with passphrase
 
 ### AI Intelligence Layer
+
 - Gemini classification/entity extraction
 - AI insight persistence (`AIInsight` model)
 - repeated offender and escalation detection
 - legal narrative summary for reports
 
 ### Emergency Reliability
+
 - SOS captures location + 30s audio
 - encrypted SOS payload upload
 - retry mechanism (3 attempts)
@@ -44,6 +115,7 @@ AINA is now structured as a mission-critical, privacy-first safety platform:
 - fallback alert status path (`fallback_sms` simulation)
 
 ### Legal-Grade Report Generator
+
 - `/report/summary`
 - `/report/export/json`
 - `/report/export/pdf`
@@ -84,6 +156,7 @@ npm run dev
 ```
 
 Run tests:
+
 ```bash
 npm test
 ```

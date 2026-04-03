@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { View, TextInput, Text, StyleSheet } from "react-native";
-import NetInfo from "@react-native-community/netinfo";
-import API from "../services/api";
-import { encryptEvidence } from "../mobile/encryption";
-import { buildReplayHeaders } from "../mobile/requestSecurity";
-import { enqueueIncident, syncOfflineQueues } from "../mobile/offlineQueue";
-import PrimaryButton from "../components/PrimaryButton";
-import ErrorState from "../components/ErrorState";
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, Text, StyleSheet } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
+import API from '../services/api';
+import { encryptEvidence } from '../mobile/encryption';
+import { buildReplayHeaders } from '../mobile/requestSecurity';
+import { enqueueIncident, syncOfflineQueues } from '../mobile/offlineQueue';
+import PrimaryButton from '../components/PrimaryButton';
+import ErrorState from '../components/ErrorState';
 
 export default function AddIncident() {
-  const [desc, setDesc] = useState("");
-  const [passphrase, setPassphrase] = useState("");
+  const [desc, setDesc] = useState('');
+  const [passphrase, setPassphrase] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [status, setStatus] = useState("Ready");
+  const [error, setError] = useState('');
+  const [status, setStatus] = useState('Ready');
 
   useEffect(() => {
     syncOfflineQueues();
@@ -22,17 +22,17 @@ export default function AddIncident() {
   const submit = async () => {
     try {
       setLoading(true);
-      setError("");
-      setStatus("Encrypting evidence...");
+      setError('');
+      setStatus('Encrypting evidence...');
 
       if (!desc || !passphrase) {
-        throw new Error("Description and passphrase are required");
+        throw new Error('Description and passphrase are required');
       }
 
       const encrypted = await encryptEvidence(desc, passphrase);
-      const analysisRes = await API.post("/incident/analyze", { text: desc });
+      const analysisRes = await API.post('/incident/analyze', { text: desc });
       const payload = {
-        type: analysisRes.data.analysis?.type || "verbal",
+        type: analysisRes.data.analysis?.type || 'verbal',
         encryptedText: encrypted.encrypted,
         evidenceHash: encrypted.hash,
         encryptionMeta: encrypted.meta,
@@ -43,19 +43,19 @@ export default function AddIncident() {
       const network = await NetInfo.fetch();
       if (!network.isConnected) {
         await enqueueIncident(payload);
-        setStatus("Saved offline. Will sync when internet returns.");
-        setDesc("");
+        setStatus('Saved offline. Will sync when internet returns.');
+        setDesc('');
         return;
       }
 
       const headers = await buildReplayHeaders();
-      await API.post("/incident", payload, { headers });
+      await API.post('/incident', payload, { headers });
 
-      setDesc("");
-      setStatus("Incident uploaded securely");
+      setDesc('');
+      setStatus('Incident uploaded securely');
     } catch (e) {
       setError(e.response?.data?.message || e.message);
-      setStatus("Failed");
+      setStatus('Failed');
     } finally {
       setLoading(false);
     }
@@ -83,15 +83,24 @@ export default function AddIncident() {
 
       <Text style={styles.status}>Status: {status}</Text>
       <ErrorState message={error} />
-      <PrimaryButton title={loading ? "Processing..." : "Submit Secure Incident"} onPress={submit} />
+      <PrimaryButton
+        title={loading ? 'Processing...' : 'Submit Secure Incident'}
+        onPress={submit}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  label: { fontWeight: "600", marginBottom: 6 },
-  input: { borderWidth: 1, borderColor: "#d1d5db", borderRadius: 10, padding: 10, marginBottom: 12 },
-  multiline: { minHeight: 120, textAlignVertical: "top" },
-  status: { color: "#374151", marginBottom: 8 },
+  label: { fontWeight: '600', marginBottom: 6 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 12,
+  },
+  multiline: { minHeight: 120, textAlignVertical: 'top' },
+  status: { color: '#374151', marginBottom: 8 },
 });

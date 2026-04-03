@@ -1,5 +1,5 @@
-import * as Crypto from "expo-crypto";
-import CryptoJS from "crypto-js";
+import * as Crypto from 'expo-crypto';
+import CryptoJS from 'crypto-js';
 
 function deriveKey(passphrase, saltHex) {
   return CryptoJS.PBKDF2(passphrase, CryptoJS.enc.Hex.parse(saltHex), {
@@ -28,7 +28,7 @@ export async function encryptEvidence(plainText, passphrase) {
   return {
     encrypted,
     hash,
-    meta: { salt, iv, algorithm: "AES-256-CBC", kdf: "PBKDF2-SHA256" },
+    meta: { salt, iv, algorithm: 'AES-256-CBC', kdf: 'PBKDF2-SHA256' },
   };
 }
 
